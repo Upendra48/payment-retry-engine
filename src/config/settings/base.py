@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "django_filters",
-    "apps.payments",
+    "apps.payments.apps.PaymentsConfig",
     "apps.common",
     "apps.users",
 ]
