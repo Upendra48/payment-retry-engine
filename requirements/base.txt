@@ -1,0 +1,17 @@
+Django
+djangorestframework
+djangorestframework-simplejwt
+drf-spectacular
+
+psycopg[binary]
+
+python-decouple
+
+celery
+redis
+
+django-filter
+
+gunicorn
+
+whitenoise
