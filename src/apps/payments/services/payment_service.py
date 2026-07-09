@@ -8,11 +8,15 @@ from apps.payments.models import PaymentAttempt
 
 from apps.common.constants import PaymentStatus
 
+from apps.payments.services.retry_policy import RetryPolicy
+
+
 
 class PaymentService:
     
-    def __init__(self, gateway = None):
+    def __init__(self, gateway = None, retry_policy= None):
         self.gateway = gateway or MockGatewayService()
+        self.retry_policy = retry_policy or RetryPolicy
         
     @transaction.atomic
     def create_payment(self, request):
@@ -58,15 +62,24 @@ class PaymentService:
         payment.status = PaymentStatus.SUCCESS
         payment.gateway_reference = response.gateway_transaction_id
 
-       elif response.retryable:
-        payment.status = PaymentStatus.RETRYING
-
+       elif self.retry_policy.should_retry(payment, response):
+           payment.status = PaymentStatus.RETRYING
+        
+           payment.retry_count += 1
+        
+           payment.next_retry_at = (
+            self.retry_policy.next_retry_time(payment)
+        )
+        
+    
        else:
-        payment.status = PaymentStatus.FAILED
+           payment.status = PaymentStatus.FAILED
 
        payment.save(
         update_fields=[
             "status",
+            "retry_count",
+            "next_retry_at",
             "gateway_reference",
             "updated_at",
         ]
