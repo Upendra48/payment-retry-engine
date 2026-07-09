@@ -113,3 +113,15 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Production-grade payment retry engine built with Django REST Framework.",
     "VERSION": "1.0.0",
 }
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL")
+
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND")
+
+CELERY_ACCEPT_CONTENT = ["json"]
+
+CELERY_TASK_SERIALIZER = "json"
+
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = TIME_ZONE
