@@ -3,8 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 class RetryPolicy:
-        def should_retry(self, payment, gateway_response):
-
+        def should_retry(self,payment, gateway_response):
             if not gateway_response.retryable:
                 return False
 

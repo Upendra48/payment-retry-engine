@@ -16,7 +16,7 @@ class PaymentService:
     
     def __init__(self, gateway = None, retry_policy= None):
         self.gateway = gateway or MockGatewayService()
-        self.retry_policy = retry_policy or RetryPolicy
+        self.retry_policy = retry_policy or RetryPolicy()
         
     @transaction.atomic
     def create_payment(self, request):
@@ -32,13 +32,7 @@ class PaymentService:
             payment,
         )
         
-        gateway_response = self.gateway.process()
-        
-        self._record_attempt(payment, gateway_response,)
-        
-        self._update_payment_status(
-            payment, gateway_response,
-        )
+        self._process_gateway(payment)
 
         return payment
     
@@ -112,3 +106,19 @@ class PaymentService:
             key=key,
             payment=payment,
         )    
+        
+    def _process_gateway(self, payment):
+
+        gateway_response = self.gateway.process()
+
+        self._record_attempt(
+          payment,
+          gateway_response,
+         )
+
+        self._update_payment_status(
+          payment,
+          gateway_response,
+        )
+
+        return gateway_response    
