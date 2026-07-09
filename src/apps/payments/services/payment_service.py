@@ -39,7 +39,7 @@ class PaymentService:
     def _record_attempt(self, payment, response):
         PaymentAttempt.objects.create(
         payment=payment,
-        attempt_number=1,
+        attempt_number=payment.attempts.count() + 1,
         status=(
             AttemptStatus.SUCCESS
             if response.success
@@ -122,3 +122,13 @@ class PaymentService:
         )
 
         return gateway_response    
+    
+    
+    def retry_payment(self, payment):
+        
+        if payment.status not in [PaymentStatus.RETRYING, PaymentStatus.PENDING]:
+            return payment
+        
+        self._process_gateway(payment)
+        
+        return payment
