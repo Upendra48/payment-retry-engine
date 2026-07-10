@@ -6,9 +6,15 @@ from apps.common.gateway import GatewayOutcome
 from .dto import GatewayResponse
 
 
+
+
 class MockGatewayService:
     def process(self) -> GatewayResponse:
         start = time.perf_counter()
+        
+        time.sleep(random.uniform(0.1,0.5))
+        
+        duration_ms = (time.perf_counter()- start)*1000
 
         outcome = random.choice(
             [
@@ -19,7 +25,7 @@ class MockGatewayService:
             ]
         )
 
-        duration = int((time.perf_counter() - start) * 1000)
+        duration_ms = int((time.perf_counter() - start) * 1000)
 
         match outcome:
 
@@ -30,7 +36,7 @@ class MockGatewayService:
                     response_code="200",
                     response_message="Payment successful",
                     gateway_transaction_id=str(uuid4()),
-                    duration_ms=duration,
+                    duration_ms=duration_ms,
                 )
 
             case GatewayOutcome.TIMEOUT:
@@ -39,7 +45,7 @@ class MockGatewayService:
                     retryable=True,
                     response_code="TIMEOUT",
                     response_message="Gateway timeout",
-                    duration_ms=duration,
+                    duration_ms=duration_ms,
                 )
 
             case GatewayOutcome.SERVER_ERROR:
@@ -48,7 +54,7 @@ class MockGatewayService:
                     retryable=True,
                     response_code="503",
                     response_message="Gateway unavailable",
-                    duration_ms=duration,
+                    duration_ms=duration_ms,
                 )
 
             case GatewayOutcome.CARD_DECLINED:
@@ -57,5 +63,5 @@ class MockGatewayService:
                     retryable=False,
                     response_code="402",
                     response_message="Card declined",
-                    duration_ms=duration,
+                    duration_ms=duration_ms,
                 )

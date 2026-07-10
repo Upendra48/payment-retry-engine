@@ -10,6 +10,19 @@ from apps.common.constants import PaymentStatus
 
 from apps.payments.services.retry_policy import RetryPolicy
 
+from apps.payments.metrics import payments_created_total
+
+from apps.payments.metrics import (
+    payments_success_total,
+    payments_failed_total,
+)
+
+from apps.payments.metrics import payment_retries_total
+
+from apps.payments.metrics import gateway_latency_seconds
+
+from apps.payments.metrics import payment_processing_seconds
+
 
 
 class PaymentService:
@@ -20,21 +33,24 @@ class PaymentService:
         
     @transaction.atomic
     def create_payment(self, request):
-        payment = self._find_existing_payment(request.idempotency_key)
+        
+        with payment_processing_seconds.time():
+            
+          payment = self._find_existing_payment(request.idempotency_key)
 
-        if payment:
+          if payment:
             return payment
 
-        payment = self._create_payment(request)
+          payment = self._create_payment(request)
 
-        self._create_idempotency_record(
+          self._create_idempotency_record(
             request.idempotency_key,
             payment,
-        )
+          )
         
-        self._process_gateway(payment)
+          self._process_gateway(payment)
 
-        return payment
+          return payment
     
     def _record_attempt(self, payment, response):
         PaymentAttempt.objects.create(
@@ -55,6 +71,8 @@ class PaymentService:
        if response.success:
         payment.status = PaymentStatus.SUCCESS
         payment.gateway_reference = response.gateway_transaction_id
+        
+        payments_success_total.inc()
 
        elif self.retry_policy.should_retry(payment, response):
            payment.status = PaymentStatus.RETRYING
@@ -63,11 +81,15 @@ class PaymentService:
         
            payment.next_retry_at = (
             self.retry_policy.next_retry_time(payment)
-        )
+            )
+           
+           payment_retries_total.inc()
         
     
        else:
            payment.status = PaymentStatus.FAILED
+           
+           payments_failed_total.inc()
 
        payment.save(
         update_fields=[
@@ -94,12 +116,15 @@ class PaymentService:
         return None
     
     def _create_payment(self, request):
-        return Payment.objects.create(
+        payment = Payment.objects.create(
             amount = request.amount,
             currency = request.currency,
             customer_email = request.customer_email,
             description = request.description,
         )
+        
+        payments_created_total.inc()
+        return payment
         
     def _create_idempotency_record(self,key,payment):
         return IdempotencyKey.objects.create(
@@ -119,6 +144,10 @@ class PaymentService:
         self._update_payment_status(
           payment,
           gateway_response,
+        )
+        
+        gateway_latency_seconds.observe(
+            gateway_response.duration_ms / 1000
         )
 
         return gateway_response    

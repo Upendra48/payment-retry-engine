@@ -108,7 +108,22 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
     depends_on:
-      - web        
+      - web     
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: payment_grafana
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      - prometheus
+
+    volumes:
+      - grafana_data:/var/lib/grafana    
+
 
 volumes:
   postgres_data:
+  grafana_data:
