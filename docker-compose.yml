@@ -45,11 +45,8 @@ services:
       timeout: 5s
       retries: 10
 
-
-
   rabbitmq:
     image: rabbitmq:3-management
-
     container_name: payment_rabbitmq
 
     ports:
@@ -65,22 +62,40 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    
+
   worker:
     build: .
+
     command: celery -A config worker -l info
+
     depends_on:
       rabbitmq:
         condition: service_healthy
       db:
         condition: service_healthy
+
     env_file:
       - .env.example
+
     volumes:
-      - ./src:/app/src  
+      - ./src:/app/src
+
+  beat:
+    build: .
+
+    command: celery -A config beat -l info
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+    env_file:
+      - .env.example
+
+    volumes:
+      - ./src:/app/src
 
 volumes:
   postgres_data:
-
-  rabbitmq:
-  worker:      

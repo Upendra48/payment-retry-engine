@@ -3,6 +3,15 @@ import os
 
 from decouple import config
 
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "retry-due-payments": {
+        "task": "apps.payments.tasks.retry_due_payments",
+        "schedule": crontab(minute="2"),
+    },
+}
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY")
