@@ -24,10 +24,38 @@ from apps.payments.models import Payment
 
 from apps.payments.models import PaymentAttempt
 
+from apps.payments.filters import PaymentFilter
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+
 
 class PaymentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     permission_classes = [AllowAny]
+    
+    filter_backends = [
+    DjangoFilterBackend,
+    OrderingFilter,
+    SearchFilter,
+        ]
+
+    filterset_class = PaymentFilter
+
+    ordering_fields = [
+    "created_at",
+    "amount",
+    "status",
+        ]
+
+    ordering = [
+    "-created_at",
+       ]
+
+    search_fields = [
+    "customer_email",
+    "description",
+     ]
     
     
     def get_serializer_class(self):
