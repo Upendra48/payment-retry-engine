@@ -29,6 +29,8 @@ from apps.payments.filters import PaymentFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
+from apps.payments.services.analytics_service import AnalyticsService
+
 
 class PaymentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
@@ -148,5 +150,14 @@ class PaymentAttemptListAPIView(generics.ListAPIView):
             .filter(payment_id=self.kwargs["payment_id"])
             .order_by("attempt_number")
         )       
-        
- 
+  
+@extend_schema(
+    summary="Payment Analytics",
+    description="Returns payment statistics and aggregated metrics "
+)        
+class PaymentAnalyticsAPIView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        data = AnalyticsService().get_summary()
+        return Response(data) 
