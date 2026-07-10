@@ -7,22 +7,28 @@ class PaymentCreateSerializer(serializers.Serializer):
     amount = serializers.DecimalField(
         max_digits=12,
         decimal_places=2,
+        help_text = "Payment amount",
     )
 
     currency = serializers.CharField(
         max_length=3,
         default="NRP",
+        help_text = "Currency Code"
     )
 
-    customer_email = serializers.EmailField()
+    customer_email = serializers.EmailField(
+        help_text = "Customer email address",
+    )
 
     description = serializers.CharField(
         required=False,
         allow_blank=True,
+        help_text = "Payment Description",
     )
 
     idempotency_key = serializers.CharField(
         max_length=255,
+        help_text ="Unique key to prevent duplicate payments"
     )
 
 class PaymentSerializer(serializers.ModelSerializer):

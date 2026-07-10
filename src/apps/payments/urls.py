@@ -1,19 +1,18 @@
 from django.urls import path
 
-from apps.payments.views import PaymentCreateAPIView
 from apps.payments.views import (
     PaymentAttemptListAPIView,
-    PaymentCreateAPIView,
+    PaymentListCreateAPIView,
     PaymentDetailAPIView,
 )
 
 urlpatterns = [
     path(
         "",
-        PaymentCreateAPIView.as_view(),
-        name="payment-create",
+        PaymentListCreateAPIView.as_view(),
+        name="payment-list-create",
     ),
-    
+     
     path(
         "<uuid:pk>/",
         PaymentDetailAPIView.as_view(),
