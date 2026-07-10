@@ -5,6 +5,8 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from django.urls import include, path
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 
@@ -18,5 +20,10 @@ urlpatterns = [
         "api/schema/swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
+    ),
+    
+    path(
+        "api/payments/",
+        include("apps.payments.urls"),
     ),
 ]
