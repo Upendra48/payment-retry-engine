@@ -22,6 +22,8 @@ ALLOWED_HOSTS = config(
 )
 
 INSTALLED_APPS = [
+    "django_prometheus",
+    
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -44,6 +46,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

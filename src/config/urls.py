@@ -8,6 +8,9 @@ from drf_spectacular.views import (
 from django.urls import include, path
 
 urlpatterns = [
+    
+    path("", include("django_prometheus.urls")),
+    
     path("admin/", admin.site.urls),
 
     path(

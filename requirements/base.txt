@@ -15,3 +15,5 @@ django-filter
 gunicorn
 
 whitenoise
+
+django-prometheus
