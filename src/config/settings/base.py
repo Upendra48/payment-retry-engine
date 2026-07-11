@@ -2,8 +2,10 @@ from pathlib import Path
 import os
 
 from decouple import config
+import dj_database_url
 
 from celery.schedules import crontab
+
 
 CELERY_BEAT_SCHEDULE = {
     "retry-due-payments": {
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -48,6 +51,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -72,14 +76,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
-    }
+    "default": dj_database_url.config(
+       default=config("DATABASE_URL"),
+       conn_max_age=600,
+       ssl_require= True,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -103,6 +104,12 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {

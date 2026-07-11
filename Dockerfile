@@ -10,16 +10,13 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements ./requirements
+COPY src/requirements.txt .
 
-RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install -r requirements/development.txt
+COPY src/ /app/src/
+COPY deploy/ /app/deploy/
 
-COPY . .
+RUN chmod +x /app/deploy/*.sh
 
 WORKDIR /app/src
-
-EXPOSE 8000
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
