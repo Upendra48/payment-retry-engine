@@ -25,7 +25,7 @@ services:
         sync: false
 
       - key: ALLOWED_HOSTS
-        value: payment-retry-engine.onrender-web.com
+        value: payment-retry-engine-web.onrender.com
 
     dockerCommand: /app/deploy/start-web.sh
 
@@ -55,7 +55,7 @@ services:
         sync: false
 
       - key: ALLOWED_HOSTS
-        value: payment-retry-engine.onrender-web.com
+        value: payment-retry-engine-web.onrender.com
 
   - type: worker
     name: payment-retry-engine-beat
@@ -83,4 +83,4 @@ services:
         sync: false
 
       - key: ALLOWED_HOSTS
-        value: payment-retry-engine.onrender-web.com
+        value: payment-retry-engine-web.onrender.com
