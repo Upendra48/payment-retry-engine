@@ -1,0 +1,86 @@
+services:
+  - type: web
+    name: payment-retry-engine-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+
+    plan: free
+
+    healthCheckPath: /api/schema/
+
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+
+      - key: DEBUG
+        value: "False"
+
+      - key: SECRET_KEY
+        sync: false
+
+      - key: DATABASE_URL
+        sync: false
+
+      - key: CELERY_BROKER_URL
+        sync: false
+
+      - key: ALLOWED_HOSTS
+        value: payment-retry-engine-web.onrender.com
+
+    dockerCommand: /app/deploy/start-web.sh
+
+  - type: worker
+    name: payment-retry-engine-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+
+    plan: free
+
+    dockerCommand: /app/deploy/start-worker.sh
+
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+
+      - key: DEBUG
+        value: "False"
+
+      - key: SECRET_KEY
+        sync: false
+
+      - key: DATABASE_URL
+        sync: false
+
+      - key: CELERY_BROKER_URL
+        sync: false
+
+      - key: ALLOWED_HOSTS
+        value: payment-retry-engine-web.onrender.com
+
+  - type: worker
+    name: payment-retry-engine-beat
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+
+    plan: free
+
+    dockerCommand: /app/deploy/start-beat.sh
+
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+
+      - key: DEBUG
+        value: "False"
+
+      - key: SECRET_KEY
+        sync: false
+
+      - key: DATABASE_URL
+        sync: false
+
+      - key: CELERY_BROKER_URL
+        sync: false
+
+      - key: ALLOWED_HOSTS
+        value: payment-retry-engine-web.onrender.com
