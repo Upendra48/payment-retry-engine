@@ -5,6 +5,93 @@ A production-inspired backend system built with Django REST Framework that simul
 This project demonstrates backend engineering concepts commonly used in fintech systems, including idempotency, asynchronous task processing, retry strategies, monitoring, scheduling, REST API design, and containerized deployment.
 
 ---
+# Production Deployment
+
+This project is deployed using a distributed cloud architecture, where each infrastructure component is hosted on a managed platform similar to a real-world production environment.
+
+| Component | Platform |
+|-----------|----------|
+|  Django REST API | Render |
+|  PostgreSQL Database | Neon |
+|  RabbitMQ Message Broker | CloudAMQP |
+|  Celery Worker | Railway |
+|  Celery Beat Scheduler | Railway |
+
+## Live API
+
+```
+https://payment-retry-engine-web.onrender.com/
+```
+
+## Swagger Documentation
+
+```
+https://payment-retry-engine-web.onrender.com/api/schema/swagger/
+```
+
+## Production Architecture
+
+```text
+                    Client
+                       │
+                       ▼
+            Render (Django REST API)
+                       │
+          ┌────────────┴─────────────┐
+          ▼                          ▼
+  Neon PostgreSQL            CloudAMQP RabbitMQ
+          ▲                          ▲
+          │                          │
+          │                   Celery Messages
+          │                          │
+          ▼                          ▼
+ Railway Celery Worker      Railway Celery Beat
+          │                          │
+          └────────────┬─────────────┘
+                       ▼
+              Automatic Payment Retry
+```
+
+## Cloud Infrastructure
+
+### Render
+
+- Hosts the Django REST API
+- Serves the Swagger documentation
+- Automatic deployments from GitHub
+- Production-ready static file serving
+
+### Railway
+
+- Runs the Celery Worker
+- Runs the Celery Beat Scheduler
+- Processes asynchronous payment retries
+
+### Neon
+
+- Managed PostgreSQL database
+- SSL-enabled database connections
+- Production-grade cloud database
+
+### CloudAMQP
+
+- Managed RabbitMQ broker
+- Secure AMQPS connection
+- Reliable asynchronous message delivery
+
+## Deployment Highlights
+
+- Dockerized application
+- Multi-service cloud deployment
+- Managed PostgreSQL with Neon
+- Managed RabbitMQ using CloudAMQP
+- Distributed background task processing
+- Automatic scheduled payment retries
+- Environment-based configuration
+- Secure SSL database and broker connections
+- Production-ready deployment using GitHub integration
+
+---
 
 ## Features
 
@@ -246,11 +333,13 @@ Grafana <────── Prometheus
 ### Database
 
 * PostgreSQL
+* Neon PostgreSQL (Production)
 
 ### Task Queue
 
 * Celery
 * RabbitMQ
+* CloudAMQP
 * Celery Beat
 
 ### Monitoring
@@ -270,6 +359,8 @@ Grafana <────── Prometheus
 
 * Docker
 * Docker Compose
+* Render
+* Railway
 
 ---
 
