@@ -145,6 +145,9 @@ class PaymentAttemptListAPIView(generics.ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return PaymentAttempt.objects.none()
+        
         return (
             PaymentAttempt.objects
             .filter(payment_id=self.kwargs["payment_id"])

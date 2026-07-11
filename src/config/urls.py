@@ -9,7 +9,9 @@ from django.urls import include, path
 
 urlpatterns = [
     
-    path("", include("django_prometheus.urls")),
+    path("", 
+         SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",),
     
     path("admin/", admin.site.urls),
 
