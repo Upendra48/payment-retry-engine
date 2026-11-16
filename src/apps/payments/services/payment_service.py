@@ -24,6 +24,12 @@ from apps.payments.metrics import gateway_latency_seconds
 from apps.payments.metrics import payment_processing_seconds
 
 
+class DuplicateIdempotencyKey(Exception):
+    """Raised when an idempotency key has already been used."""
+
+    def __init__(self, message, payment):
+        super().__init__(message)
+        self.payment = payment
 
 class PaymentService:
     
@@ -35,11 +41,12 @@ class PaymentService:
     def create_payment(self, request):
         
         with payment_processing_seconds.time():
-            
-          payment = self._find_existing_payment(request.idempotency_key)
-
-          if payment:
-            return payment
+          existing_payment = self._find_existing_payment(request.idempotency_key)  
+          if existing_payment:
+              raise DuplicateIdempotencyKey(
+                  "A payment with this idempotency key already exists.",
+                  existing_payment,
+              )
 
           payment = self._create_payment(request)
 

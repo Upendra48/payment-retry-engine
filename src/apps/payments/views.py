@@ -30,6 +30,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
 from apps.payments.services.analytics_service import AnalyticsService
+from apps.payments.services.payment_service import DuplicateIdempotencyKey
 
 
 class PaymentListCreateAPIView(generics.ListCreateAPIView):
@@ -104,10 +105,22 @@ class PaymentListCreateAPIView(generics.ListCreateAPIView):
         payment_request = CreatePaymentRequest(
             **serializer.validated_data,
         )
-
-        payment = PaymentService().create_payment(
-            payment_request,
-        )
+        
+        
+        try:
+            payment = PaymentService().create_payment(
+                payment_request,
+            )
+        except DuplicateIdempotencyKey as error:
+            return Response(
+                {"detail": str(error),
+                 "payment": PaymentSerializer(error.payment).data
+                },
+                status=status.HTTP_409_CONFLICT,
+            )    
+        # payment = PaymentService().create_payment(
+        #     payment_request,
+        # )
 
         response = PaymentSerializer(payment)
 
@@ -164,3 +177,6 @@ class PaymentAnalyticsAPIView(APIView):
     def get(self, request):
         data = AnalyticsService().get_summary()
         return Response(data) 
+    
+    
+    
